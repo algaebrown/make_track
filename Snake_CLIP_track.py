@@ -32,8 +32,7 @@ rule all:
         "echo created by Evan Boyle and the Yeo lab >> {output}"
 
 
-# this might not work for single-end?
-# yes when single end we only have header
+
 rule extract_read_two:
     input:
         bam=lambda wildcards: glob.glob(manifest.loc[manifest.Sample == wildcards.sample_label]["bam"].values[0]),
