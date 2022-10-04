@@ -10,8 +10,7 @@ import glob
 
 
 
-# this might not work for single-end?
-# yes when single end we only have header
+
 rule extract_read_two:
     input:
         #bam="input/{sample_label}.bam"
