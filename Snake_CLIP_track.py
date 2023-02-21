@@ -8,7 +8,13 @@ import pandas as pd
 import glob
 
 
-
+try:
+    manifest = config['manifest']
+except:
+    try:
+        manifest = pd.read_csv(config['MANIFEST'])
+    except:
+        pass
 
 
 rule extract_read_two:
@@ -72,7 +78,7 @@ rule bam_pileup:
         
     params:
         run_time="2:00:00",
-        genomefa=config['GENOME_FA'],
+        genomefa=config['GENOME_FA'] if 'GENOME_FA' in config.keys() else None,
         error_out_file = "error_files/bam_pileup",
         out_file = "stdout/pileup.{sample_label}",
         cores = 1,
@@ -128,6 +134,24 @@ rule CITS_bam_to_bedgrah:
         bedtools genomecov -ibam {input.bam} -bg -scale -1 -strand - -5 > {output.neg}
         bedSort {output.neg} {output.neg}
         """
+
+rule bedgraph_to_bw:
+    input:
+        bedgraph="{something}.bedgraph",
+    output:
+        bw="{something}.bw"
+    params:
+        run_time="6:00:00",
+        chr_size=config['CHROM_SIZES'],
+        error_out_file = "error_files/{something}.bedgraph_to_bw",
+        out_file = "stdout/{something}.bedgraph_to_bw",
+        cores = 1,
+    shell:
+        """
+        module load ucsctools
+        bedGraphToBigWig {input.bedgraph} {params.chr_size} {output.bw}
+        """
+        
 rule CITS_bedgraph_to_bw:
     input:
         pos="CITS/{sample_label}.pos.bedgraph",
